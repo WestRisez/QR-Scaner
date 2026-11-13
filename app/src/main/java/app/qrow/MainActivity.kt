@@ -13,6 +13,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.OptIn
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
@@ -137,8 +138,8 @@ private fun QrTheme(content: @Composable () -> Unit) {
 
 // ---------- Вспомогательное ----------
 
-private val dateFmt = SimpleDateFormat("dd MMM, HH:mm:ss", Locale.getDefault())
-private val dateFmtFull = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
+private fun dateFmt() = SimpleDateFormat("dd MMM, HH:mm:ss", Locale.getDefault())
+private fun dateFmtFull() = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
 
 private fun formatName(format: Int): String = when (format) {
     Barcode.FORMAT_QR_CODE -> "QR"
@@ -162,7 +163,7 @@ private fun App(db: Db) {
     var tab by remember { mutableIntStateOf(0) }
     var scans by remember { mutableStateOf(db.all()) }
     var lastScanned by remember { mutableStateOf<String?>(null) }
-    var confirmClear by remember { mutableStateOf(false) }
+    var confirmClear by remember { mutableStateOf(value = false) }
 
     // Защита от повторной записи одного и того же кода подряд
     val lastValue = remember { arrayOf<String?>(null) }
@@ -172,7 +173,7 @@ private fun App(db: Db) {
 
     fun onScan(content: String, format: String) {
         val now = System.currentTimeMillis()
-        if (content == lastValue[0] && now - lastTime[0] < 3000) {
+        if ((content == lastValue[0]) && ((now - lastTime[0]) < 3000)) {
             lastTime[0] = now
             return
         }
@@ -191,25 +192,27 @@ private fun App(db: Db) {
                 NavigationBarItem(
                     selected = tab == 0, onClick = { tab = 0 },
                     icon = { Icon(Icons.Rounded.QrCodeScanner, null) },
-                    label = { Text("Сканер") }
+                    label = { Text("Сканер") },
                 )
                 NavigationBarItem(
                     selected = tab == 1, onClick = { tab = 1 },
                     icon = {
-                        BadgedBox(badge = {
-                            if (scans.isNotEmpty()) Badge { Text("${scans.size}") }
-                        }) { Icon(Icons.Rounded.TableChart, null) }
+                        BadgedBox(
+                            badge = {
+                                if (scans.isNotEmpty()) Badge { Text(scans.size.toString()) }
+                            },
+                        ) { Icon(Icons.Rounded.TableChart, null) }
                     },
-                    label = { Text("Таблица") }
+                    label = { Text("Таблица") },
                 )
             }
         },
         floatingActionButton = {
-            if (tab == 1 && scans.isNotEmpty()) {
+            if ((tab == 1) && scans.isNotEmpty()) {
                 ExtendedFloatingActionButton(
                     onClick = { exportXlsx(context, scans) },
                     icon = { Icon(Icons.Rounded.FileDownload, null) },
-                    text = { Text("Экспорт в Excel") }
+                    text = { Text("Экспорт в Excel") },
                 )
             }
         }
@@ -222,8 +225,7 @@ private fun App(db: Db) {
                 TableScreen(
                     scans = scans,
                     onDelete = { id -> db.delete(id); scans = db.all() },
-                    onClear = { confirmClear = true }
-                )
+                ) { confirmClear = true }
             }
         }
     }
@@ -236,7 +238,9 @@ private fun App(db: Db) {
             text = { Text("Будут удалены все записи (${scans.size}). Это нельзя отменить.") },
             confirmButton = {
                 TextButton(onClick = {
-                    db.clear(); scans = emptyList(); lastValue[0] = null
+                    db.clear()
+                    scans = emptyList()
+                    lastValue[0] = null
                     lastScanned = null
                     confirmClear = false
                 }) { Text("Удалить") }
@@ -293,7 +297,7 @@ private fun ScannerScreen(lastScanned: String?, onScan: (String, String) -> Unit
 
     Box(Modifier.fillMaxSize()) {
         var camera by remember { mutableStateOf<Camera?>(null) }
-        var torchOn by remember { mutableStateOf(false) }
+        var torchOn by remember { mutableStateOf(value = false) }
         var zoom by remember { mutableFloatStateOf(1f) }
 
         CameraPreview(onScan, onCamera = {
@@ -488,6 +492,7 @@ private fun CameraPreview(onScan: (String, String) -> Unit, onCamera: (Camera) -
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                 analysis.setAnalyzer(ContextCompat.getMainExecutor(ctx)) { proxy ->
+                    @OptIn(ExperimentalGetImage::class)
                     val media = proxy.image
                     if (media == null) {
                         proxy.close()
@@ -605,7 +610,7 @@ private fun ScanCard(number: Int, scan: Scan, onCopy: () -> Unit, onDelete: () -
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
-                        "$number",
+                        number.toString(),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -635,7 +640,7 @@ private fun ScanCard(number: Int, scan: Scan, onCopy: () -> Unit, onDelete: () -
                     }
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        dateFmt.format(Date(scan.ts)),
+                        dateFmt().format(Date(scan.ts)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -660,7 +665,7 @@ private fun exportXlsx(context: Context, scans: List<Scan>) {
         val file = File(dir, "qrow_$stamp.xlsx")
         // В файле — по порядку сканирования (старые сверху)
         val rows = scans.reversed().mapIndexed { i, s ->
-            listOf("${i + 1}", dateFmtFull.format(Date(s.ts)), s.content, s.format)
+            listOf((i + 1).toString(), dateFmtFull().format(Date(s.ts)), s.content, s.format)
         }
         file.outputStream().use {
             XlsxWriter.write(it, listOf("№", "Дата и время", "Данные", "Тип"), rows)
