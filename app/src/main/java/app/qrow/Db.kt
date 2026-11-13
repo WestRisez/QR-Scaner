@@ -1,4 +1,4 @@
-package com.example.qrtable
+package app.qrow
 
 import android.content.ContentValues
 import android.content.Context

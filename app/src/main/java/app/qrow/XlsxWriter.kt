@@ -1,4 +1,4 @@
-package com.example.qrtable
+package app.qrow
 
 import java.io.OutputStream
 import java.util.zip.ZipEntry

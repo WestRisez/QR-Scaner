@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "QRTable"
+rootProject.name = "QRow"
 include(":app")

@@ -1,4 +1,4 @@
-package com.example.qrtable
+package app.qrow
 
 import android.Manifest
 import android.content.Context
@@ -657,7 +657,7 @@ private fun exportXlsx(context: Context, scans: List<Scan>) {
     try {
         val dir = File(context.cacheDir, "exports").apply { mkdirs() }
         val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        val file = File(dir, "qr_scans_$stamp.xlsx")
+        val file = File(dir, "qrow_$stamp.xlsx")
         // В файле — по порядку сканирования (старые сверху)
         val rows = scans.reversed().mapIndexed { i, s ->
             listOf("${i + 1}", dateFmtFull.format(Date(s.ts)), s.content, s.format)
