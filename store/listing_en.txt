@@ -1,0 +1,31 @@
+TITLE (up to 30 characters)
+QRow: QR Scanner to Table
+
+SHORT DESCRIPTION (up to 80 characters)
+Scan QR codes into a table and export to Excel
+
+FULL DESCRIPTION (up to 4000 characters)
+QRow turns your phone camera into a fast data collector. Point it at QR codes and the app puts everything into a tidy table that you can export to Excel with one tap.
+
+Great for inventory, equipment and goods tracking, event check-in, invoice checks, and any task where you need to scan many codes in a row.
+
+FEATURES
+• Fast scanning: codes are recognized instantly, no button press needed
+• Records table: number, content, code type, date and time
+• One-tap export to Excel (.xlsx): send the file by email, messenger or cloud drive
+• Flashlight for dark places
+• Smooth zoom slider for distant or small codes
+• Duplicate protection: the same code twice in a row is saved once
+• Supports QR and popular barcodes (EAN, Code 128, Code 39, UPC, Data Matrix, PDF417, Aztec)
+• Tap a record to copy its content
+• Modern interface with dark theme
+
+PRIVACY
+Your data stays on your device. No sign-up, no ads, and your records are never uploaded to a server. The camera is used only to read codes.
+
+HOW TO USE
+1. Allow camera access.
+2. Point the camera at a QR code: it appears in the table.
+3. Open the Table tab and tap "Export to Excel".
+
+Questions or ideas? Contact us, we read every message.
